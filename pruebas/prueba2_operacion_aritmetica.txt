@@ -1,0 +1,5 @@
+main(){
+    int resultado = 10 + 5 * 2;
+    write("El resultado es:");
+    write(resultado);
+}

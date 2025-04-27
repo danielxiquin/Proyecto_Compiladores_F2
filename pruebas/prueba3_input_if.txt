@@ -1,0 +1,9 @@
+main() {
+    int edad;
+    read(edad);
+    if (edad >= 18) {
+        write("Eres mayor de edad");
+    } else {
+        write("Eres menor de edad");
+    }
+}

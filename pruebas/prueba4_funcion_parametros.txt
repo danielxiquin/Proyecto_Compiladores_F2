@@ -1,0 +1,12 @@
+function suma(int a, int b) {
+    int resultado = a + b;
+    return resultado;
+}
+
+main() {
+    int x = 5;
+    int y = 10;
+    int resultado = suma(x, y);
+    write("La suma es:");
+    write(resultado);
+}
