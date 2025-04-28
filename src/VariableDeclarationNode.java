@@ -11,6 +11,14 @@ public class VariableDeclarationNode extends StatementNode {
         this.value = value;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getId() {
+        return id;
+    }
+
     public VariableDeclarationValueNode getValue() {
         return value;
     }
