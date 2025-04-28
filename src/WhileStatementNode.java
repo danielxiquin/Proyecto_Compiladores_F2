@@ -7,4 +7,12 @@ public class WhileStatementNode extends StatementNode {
         this.condition = condition;
         this.body = body;
     }
+
+    public WhichConditionNode getCondition() {
+        return condition;
+    }
+
+    public StatementListTailNode getBody() {
+        return body;
+    }
 }
