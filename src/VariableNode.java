@@ -22,7 +22,7 @@ public class VariableNode extends ASTNode {
         super(line, column);
         this.stringValue = null;
         this.boolValue = boolValue;
-        // this.figure = null;
+        this.figure = null;
         this.floatValue = null;
         this.id = null;
         this.aritmetica = null;
@@ -33,20 +33,46 @@ public class VariableNode extends ASTNode {
         super(line, column);
         this.stringValue = null;
         this.boolValue = null;
-        // this.figure = figure;
-        // this.floatValue = null;
-        // this.id = null;
+        this.figure = figure;
+        this.floatValue = null;
+        this.id = null;
         this.aritmetica = null;
     }
 
     // Constructor para float
     public VariableNode(int line, int column, Float floatValue) {
         super(line, column);
-        // this.stringValue = null;
+        this.stringValue = null;
         this.boolValue = null;
-        // this.figure = null;
+        this.figure = null;
         this.floatValue = floatValue;
         this.id = null;
         this.aritmetica = null;
     }
+
+    // Constructor para ID con aritmética
+    public VariableNode(int line, int column, String id, AritmeticaNode aritmetica) {
+        super(line, column);
+        this.stringValue = null;
+        this.boolValue = null;
+        this.figure = null;
+        this.floatValue = null;
+        this.id = id;
+        this.aritmetica = aritmetica;
+    }
+
+    // Getters
+    public String getStringValue() { return stringValue; }
+    public Boolean getBoolValue() { return boolValue; }
+    public FigureNode getFigure() { return figure; }
+    public Float getFloatValue() { return floatValue; }
+    public String getId() { return id; }
+    public AritmeticaNode getAritmetica() { return aritmetica; }
+
+    // Helpers
+    public boolean isString() { return stringValue != null; }
+    public boolean isBool() { return boolValue != null; }
+    public boolean isFigure() { return figure != null; }
+    public boolean isFloat() { return floatValue != null; }
+    public boolean isId() { return id != null; }
 }
