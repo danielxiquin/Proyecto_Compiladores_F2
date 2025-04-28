@@ -19,4 +19,12 @@ public class WhichConditionNode extends ASTNode {
     public Boolean getBoolValue() {
         return boolValue;
     }
+
+    public ConditionNode getCondition() {
+        return condition;
+    }
+
+    public boolean isBool() {
+        return boolValue != null;
+    }
 }
