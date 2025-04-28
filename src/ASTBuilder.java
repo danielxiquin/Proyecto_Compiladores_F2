@@ -250,5 +250,172 @@ public class ASTBuilder extends MyLanguageBaseVisitor<ASTNode> {
         }
     }
 
-    
+    @Override
+    public ASTNode visitExpression2(MyLanguageParser.Expression2Context ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.COMPARISON_OP() != null) {
+            String operator = ctx.COMPARISON_OP().getText();
+            VariableNode right = (VariableNode) visit(ctx.variable());
+            Expression2Node next = (Expression2Node) visit(ctx.expression2());
+            return new Expression2Node(line, column, operator, right, next);
+        } else if (ctx.relationOperator2() != null) {
+            String operator = ctx.relationOperator2().getText();
+            VariableNode right = (VariableNode) visit(ctx.variable());
+            Expression2Node next = (Expression2Node) visit(ctx.expression2());
+            return new Expression2Node(line, column, operator, right, next);
+        } else {
+            // Caso epsilon
+            return new Expression2Node(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitExpression3(MyLanguageParser.Expression3Context ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.relationOperator2() != null) {
+            String operator = ctx.relationOperator2().getText();
+            String right = ctx.STRING().getText();
+            Expression3Node next = (Expression3Node) visit(ctx.expression3());
+            return new Expression3Node(line, column, operator, right, next);
+        } else {
+            // Caso epsilon
+            return new Expression3Node(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitIfStatement(MyLanguageParser.IfStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        WhichConditionNode condition = (WhichConditionNode) visit(ctx.whichCondition());
+        StatementListTailNode body = (StatementListTailNode) visit(ctx.statementListTail());
+        ElsePartNode elsePart = (ElsePartNode) visit(ctx.elsePart());
+
+        return new IfStatementNode(line, column, condition, body, elsePart);
+    }
+
+    @Override
+    public ASTNode visitElsePart(MyLanguageParser.ElsePartContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.statementListTail() != null) {
+            StatementListNode body = (StatementListNode) visit(ctx.statementListTail());
+            return new ElsePartNode(line, column, body);
+        } else {
+            // Caso epsilon (sin else)
+            return new ElsePartNode(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitWhileStatement(MyLanguageParser.WhileStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        WhichConditionNode condition = (WhichConditionNode) visit(ctx.whichCondition());
+        StatementListTailNode body = (StatementListTailNode) visit(ctx.statementListTail());
+
+        return new WhileStatementNode(line, column, condition, body);
+    }
+
+    @Override
+    public ASTNode visitFunctionCall(MyLanguageParser.FunctionCallContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String id = ctx.ID().getText();
+        ParameterListNode parameters = (ParameterListNode) visit(ctx.parameterList());
+
+        return new FunctionCallNode(line, column, id, parameters);
+    }
+
+    @Override
+    public ASTNode visitFunctionDeclaration(MyLanguageParser.FunctionDeclarationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String id = ctx.ID().getText();
+        ParameterListNode parameters = (ParameterListNode) visit(ctx.parameterList());
+        StatementListTailNode body = (StatementListTailNode) visit(ctx.statementListTail());
+        VariableNode returnValue = (VariableNode) visit(ctx.variable());
+
+        return new FunctionDeclarationNode(line, column, id, parameters, body, returnValue);
+    }
+
+    @Override
+    public ASTNode visitParameterList(MyLanguageParser.ParameterListContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.functionVariableDeclaration() != null) {
+            FunctionVariableDeclarationNode declaration = (FunctionVariableDeclarationNode) visit(ctx.functionVariableDeclaration());
+            ParameterListTailNode tail = (ParameterListTailNode) visit(ctx.parameterListTail());
+            return new ParameterListNode(line, column, declaration, tail);
+        } else {
+            // Caso epsilon (sin parámetros)
+            return new ParameterListNode(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitParameterListTail(MyLanguageParser.ParameterListTailContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.functionVariableDeclaration() != null) {
+            FunctionVariableDeclarationNode declaration = (FunctionVariableDeclarationNode) visit(ctx.functionVariableDeclaration());
+            ParameterListTailNode next = (ParameterListTailNode) visit(ctx.parameterListTail());
+            return new ParameterListTailNode(line, column, declaration, next);
+        } else {
+            // Caso epsilon (fin de lista)
+            return new ParameterListTailNode(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitFunctionVariableDeclaration(MyLanguageParser.FunctionVariableDeclarationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String type = ctx.TYPE().getText();
+        String id = ctx.ID().getText();
+
+        return new FunctionVariableDeclarationNode(line, column, type, id);
+    }
+
+    @Override
+    public ASTNode visitInputStatement(MyLanguageParser.InputStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String id = ctx.ID().getText();
+
+        return new InputStatementNode(line, column, id);
+    }
+
+    @Override
+    public ASTNode visitOutputStatement(MyLanguageParser.OutputStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String value;
+        boolean isVariable = false;
+
+        if (ctx.STRING() != null) {
+            value = ctx.STRING().getText();
+        } else if (ctx.ID() != null) {
+            value = ctx.ID().getText();
+            isVariable = true;
+        } else {
+            throw new RuntimeException("Se esperaba STRING o ID en outputStatement");
+        }
+
+        return new OutputStatementNode(line, column, value, isVariable);
+    }
 }
