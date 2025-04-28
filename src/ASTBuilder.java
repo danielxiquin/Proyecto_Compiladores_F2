@@ -196,5 +196,59 @@ public class ASTBuilder extends MyLanguageBaseVisitor<ASTNode> {
         }
     }
 
+    @Override
+    public ASTNode visitCondition(MyLanguageParser.ConditionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.numbersCondition() != null) {
+            NumbersConditionNode numbersCondition = (NumbersConditionNode) visit(ctx.numbersCondition());
+            Expression1Node expression = (Expression1Node) visit(ctx.expression1());
+            return new ConditionNode(line, column, numbersCondition, expression);
+        } else if (ctx.STRING() != null) {
+            String value = ctx.STRING().getText();
+            Expression3Node expression = (Expression3Node) visit(ctx.expression3());
+            return new ConditionNode(line, column, value, expression);
+        } else if (ctx.ID() != null) {
+            String id = ctx.ID().getText();
+            Expression2Node expression = (Expression2Node) visit(ctx.expression2());
+            return new ConditionNode(line, column, id, expression);
+        }
+
+        throw new RuntimeException("Tipo de condición no reconocido");
+    }
+
+    @Override
+    public ASTNode visitNumbersCondition(MyLanguageParser.NumbersConditionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.DIGITO() != null) {
+            int value = Integer.parseInt(ctx.DIGITO().getText());
+            return new NumbersConditionNode(line, column, value);
+        } else if (ctx.FLOAT() != null) {
+            float value = Float.parseFloat(ctx.FLOAT().getText());
+            return new NumbersConditionNode(line, column, value);
+        }
+
+        throw new RuntimeException("Tipo de condición numérica no reconocido");
+    }
+
+    @Override
+    public ASTNode visitExpression1(MyLanguageParser.Expression1Context ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.COMPARISON_OP() != null) {
+            String operator = ctx.COMPARISON_OP().getText();
+            NumbersConditionNode right = (NumbersConditionNode) visit(ctx.numbersCondition());
+            Expression1Node next = (Expression1Node) visit(ctx.expression1());
+            return new Expression1Node(line, column, operator, right, next);
+        } else {
+            // Caso epsilon
+            return new Expression1Node(line, column);
+        }
+    }
+
     
 }
