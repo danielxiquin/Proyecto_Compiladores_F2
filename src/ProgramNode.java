@@ -5,4 +5,8 @@ public class ProgramNode extends ASTNode {
         super(line, column);
         this.statementList = statementList;
     }
+
+    public StatementListNode getStatementList() {
+        return statementList;
+    }
 }
