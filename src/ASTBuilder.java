@@ -63,5 +63,138 @@ public class ASTBuilder extends MyLanguageBaseVisitor<ASTNode> {
         throw new RuntimeException("Tipo de instrucción no reconocida");
     }
 
-   
+    @Override
+    public ASTNode visitVariableDeclarationEmpty(MyLanguageParser.VariableDeclarationEmptyContext ctx) {
+        String type = ctx.TYPE().getText();
+        String id = ctx.ID().getText();
+        VariableDeclarationValueNode value = (VariableDeclarationValueNode) visit(ctx.variableDeclarationValue());
+        return new VariableDeclarationNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), type, id, value);
+    }
+
+    @Override
+    public ASTNode visitVariableAssigment(MyLanguageParser.VariableAssigmentContext ctx) {
+        String id = ctx.ID().getText();
+        VariableNode value = (VariableNode) visit(ctx.variable());
+        return new VariableAssignmentNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), id, value);
+    }
+
+    @Override
+    public ASTNode visitVariableDeclarationValue(MyLanguageParser.VariableDeclarationValueContext ctx) {
+        if (ctx.variable() != null) {
+            VariableNode value = (VariableNode) visit(ctx.variable());
+            return new VariableDeclarationValueNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), value);
+        } else if (ctx.functionCallExpr() != null) {
+            FunctionCallExprNode functionCall = (FunctionCallExprNode) visit(ctx.functionCallExpr());
+            return new VariableDeclarationValueNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), functionCall);
+        } else {
+            // Caso epsilon (sin valor asignado)
+            return new VariableDeclarationValueNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
+        }
+    }
+
+    @Override
+    public ASTNode visitFunctionCallExpr(MyLanguageParser.FunctionCallExprContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        String id = ctx.ID().getText();
+        ArgumentListNode arguments = (ArgumentListNode) visit(ctx.argumentList());
+
+        return new FunctionCallExprNode(line, column, id, arguments);
+    }
+
+    @Override
+    public ASTNode visitArgumentList(MyLanguageParser.ArgumentListContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.variable() != null && !ctx.variable().isEmpty()) {
+            // Procesar los argumentos
+            ArgumentListNode argumentList = new ArgumentListNode(line, column);
+
+            // Procesar el primer argumento
+            VariableNode firstArg = (VariableNode) visit(ctx.variable(0));
+            argumentList.addArgument(firstArg);
+
+            // Procesar los argumentos adicionales si existen
+            for (int i = 1; i < ctx.variable().size(); i++) {
+                VariableNode arg = (VariableNode) visit(ctx.variable(i));
+                argumentList.addArgument(arg);
+            }
+
+            return argumentList;
+        } else {
+            // Caso epsilon (sin argumentos)
+            return new ArgumentListNode(line, column);
+        }
+    }
+
+    @Override
+    public ASTNode visitVariable(MyLanguageParser.VariableContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.STRING() != null) {
+            return new VariableNode(line, column, ctx.STRING().getText());
+        } else if (ctx.BOOL() != null) {
+            boolean value = Boolean.parseBoolean(ctx.BOOL().getText());
+            return new VariableNode(line, column, value);
+        } else if (ctx.figure() != null) {
+            FigureNode figure = (FigureNode) visit(ctx.figure());
+            return new VariableNode(line, column, figure);
+        } else if (ctx.FLOAT() != null) {
+            float value = Float.parseFloat(ctx.FLOAT().getText());
+            return new VariableNode(line, column, value);
+        } else if (ctx.ID() != null) {
+            AritmeticaNode aritmetica = (AritmeticaNode) visit(ctx.aritmetica());
+            return new VariableNode(line, column, ctx.ID().getText(), aritmetica);
+        }
+
+        throw new RuntimeException("Tipo de variable no reconocido");
+    }
+
+    @Override
+    public ASTNode visitFigure(MyLanguageParser.FigureContext ctx) {
+        int number = Integer.parseInt(ctx.DIGITO().getText());
+        AritmeticaNode aritmetica = (AritmeticaNode) visit(ctx.aritmetica());
+        return new FigureNode(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), number, aritmetica);
+    }
+
+    @Override
+    public ASTNode visitAritmetica(MyLanguageParser.AritmeticaContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.operator() != null) {
+            String operator = ctx.operator().getText();
+            if (ctx.DIGITO() != null) {
+                Integer number = Integer.parseInt(ctx.DIGITO().getText());
+                AritmeticaNode next = (AritmeticaNode) visit(ctx.aritmetica());
+                return new AritmeticaNode(line, column, operator, number, next);
+            } else if (ctx.ID() != null) {
+                String id = ctx.ID().getText();
+                AritmeticaNode next = (AritmeticaNode) visit(ctx.aritmetica());
+                return new AritmeticaNode(line, column, operator, id, next);
+            }
+        }
+
+        // Caso epsilon
+        return new AritmeticaNode(line, column);
+    }
+
+    @Override
+    public ASTNode visitWhichCondition(MyLanguageParser.WhichConditionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+
+        if (ctx.BOOL() != null) {
+            boolean value = Boolean.parseBoolean(ctx.BOOL().getText());
+            return new WhichConditionNode(line, column, value);
+        } else {
+            ConditionNode condition = (ConditionNode) visit(ctx.condition());
+            return new WhichConditionNode(line, column, condition);
+        }
+    }
+
+    
 }
