@@ -1,6 +1,6 @@
 # Proyecto Compiladores - Fase II
 
-Este proyecto implementa un compilador para el lenguaje "MyLanguage" utilizando ANTLR como herramienta para generar el analizador sintáctico y semántico.
+Este proyecto implementa un compilador para el lenguaje "C--" utilizando ANTLR como herramienta para generar el analizador sintáctico y semántico.
 
 ## Estructura del Proyecto
 
