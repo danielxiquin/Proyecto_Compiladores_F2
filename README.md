@@ -29,9 +29,9 @@ Para ver la gramática completa, consulta el archivo [MyLanguage.g4](./grammar/M
 
 El siguiente diagrama muestra la jerarquía de clases implementada para representar los símbolos no terminales de nuestra gramática, siguiendo el patrón de diseño Visitor:
 
-![Diagrama UML de la jerarquía de clases](./docs/images/Diagrama UML.svg)
+![Diagrama UML de la jerarquía de clases](./docs/images/Diagrama_UML.png)
 
-[⬇️ Descargar diagrama UML en formato SVG](./docs/images/Diagrama UML.svg)
+[⬇️ Descargar diagrama UML en formato SVG](./docs/images/Diagrama_UML.svg)
 
 ## Colaboradores:
 
