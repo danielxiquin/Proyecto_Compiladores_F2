@@ -35,8 +35,8 @@ El siguiente diagrama muestra la jerarquía de clases implementada para represen
 
 ## Colaboradores:
 
-Mario Ricardo De la Cruz Guevara 1176323
+Mario Ricardo De la Cruz Guevara 1176323 |
 
-José Andrés García Elías 1106423 
+José Andrés García Elías 1106423 | 
 
 Oscar Daniel Xiquin Cumes 1118423 
