@@ -12,4 +12,8 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
     public SemanticAnalyzer(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
+    
+    public List<String> getErrors() {
+        return errors;
+    }
 }
