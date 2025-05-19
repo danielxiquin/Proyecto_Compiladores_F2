@@ -200,5 +200,18 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "void";
     }
     
+    @Override
+    public String visitWhichCondition(MyLanguageParser.WhichConditionContext ctx) {
+        if (ctx.BOOL() != null) {
+            return "bool";
+        } else if (ctx.condition() != null) {
+            // Las expresiones condicionales siempre devuelven tipo bool
+            visit(ctx.condition());
+            return "bool";
+        }
+        
+        return "unknown";
+    }
+    
     
 }
