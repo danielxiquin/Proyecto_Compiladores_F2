@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Compilador - Código Generado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .output-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            min-height: 50px;
+        }
+        .code-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de Código Generado por el Compilador</h1>
+    
+    <div class="code-selector">
+        <select id="codeSelector">
+            <option value="pruebas/trigonometria.js">Compilador</option>
+        </select>
+        <button id="runButton">Ejecutar</button>
+    </div>
+    
+    <div class="output-container">
+        <h3>Salida del programa:</h3>
+        <div id="output"></div>
+    </div>
+    
+    <script>
+        document.getElementById('runButton').addEventListener('click', function() {
+            // Limpiar salida anterior
+            document.getElementById('output').innerHTML = '';
+            
+            // Añadir script seleccionado
+            const scriptName = document.getElementById('codeSelector').value;
+            const script = document.createElement('script');
+            script.src = scriptName;
+            document.body.appendChild(script);
+            
+            // Redefinir función write para mostrar en el div de salida
+            window.write = function(text) {
+                const output = document.getElementById('output');
+                output.innerHTML += text + '<br>';
+                console.log(text);
+            };
+        });
+    </script>
+</body>
+</html>
