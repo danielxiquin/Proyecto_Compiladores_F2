@@ -12,7 +12,7 @@ statement: variableDeclarationEmpty | variableAssigment | ifStatement | whileSta
 
 variableDeclarationEmpty: TYPE ID variableDeclarationValue SEMICOLON;
 
-variableAssigment: ID ASSIGN variable SEMICOLON;
+variableAssigment: ID ASSIGN (variable | functionCallExpr) SEMICOLON;
 
 variableDeclarationValue: ASSIGN (variable | functionCallExpr) | ;
 
@@ -44,7 +44,7 @@ relationOperator2: EQUALS | NOT_EQUALS;
 
 ifStatement: IF LPAREN whichCondition RPAREN LBRACE statementListTail RBRACE elsePart;
 
-elsePart: ELSE LBRACE statementListTail RBRACE | ;
+elsePart: ELSE LBRACE statementListTail RBRACE | ELSE ifStatement |;
 
 whileStatement: WHILE LPAREN whichCondition RPAREN LBRACE statementListTail RBRACE;
 
@@ -58,7 +58,7 @@ parameterListTail: COMMA functionVariableDeclaration parameterListTail | ;
 
 inputStatement: READ LPAREN ID RPAREN SEMICOLON;
 
-outputStatement: WRITE LPAREN (STRING | ID) RPAREN SEMICOLON;
+outputStatement: WRITE LPAREN (STRING | ID | functionCallExpr) RPAREN SEMICOLON;
 
 operator: PLUS | MINUS | MULT | DIV;
 
