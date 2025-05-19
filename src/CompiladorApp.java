@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Clase principal del compilador que integra todas las fases.
+ */
 public class CompiladorApp {
     private static Map<String, String> symbolTable = new HashMap<>();
 
@@ -17,15 +20,14 @@ public class CompiladorApp {
         if (args.length > 0) {
             analizarArchivo(args[0]);
         } else {
+            System.out.println("Ejecutando pruebas automáticas...");
             analizarArchivosDePrueba();
         }
     }
 
     private static void analizarArchivosDePrueba() {
         String[] archivos = {
-                "prueba1_hola_mundo.txt",
-                "prueba6_error_lexico.txt"
-
+                "trigonometria.txt"
         };
 
         for (String archivo : archivos) {
@@ -58,7 +60,6 @@ public class CompiladorApp {
             MyLanguageLexer lexer = new MyLanguageLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new ErrorListener("léxico"));
-
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
             // Verificar errores léxicos primero
@@ -67,10 +68,12 @@ public class CompiladorApp {
                 for (Token token = lexer.nextToken(); token.getType() != Token.EOF; token = lexer.nextToken()) {
                     allTokens.add(token);
                     if (token.getType() == MyLanguageLexer.MULTI_CHARACTER_ERROR) {
-                        throw new RuntimeException("Error léxico: Carácter multi-carácter no válido: " + token.getText());
+                        throw new RuntimeException(
+                                "Error léxico: Carácter multi-carácter no válido: " + token.getText());
                     }
                     if (token.getType() == MyLanguageLexer.FLOAT && !validarFloat(token.getText())) {
-                        throw new RuntimeException("Error léxico: Formato de número flotante inválido: " + token.getText());
+                        throw new RuntimeException(
+                                "Error léxico: Formato de número flotante inválido: " + token.getText());
                     }
                 }
 
@@ -106,26 +109,71 @@ public class CompiladorApp {
 
             System.out.println("--------------------------------");
 
-            // Análisis semántico
-            try {
-                System.out.println("\nIniciando análisis semántico:");
-                System.out.println("-------------------------------");
-                SemanticVisitor semanticVisitor = new SemanticVisitor(symbolTable);
-                semanticVisitor.visit(tree);
-                System.out.println("Análisis semántico completado con éxito");
-                System.out.println("-------------------------------");
-            } catch (RuntimeException e) {
-                System.err.println("Error semántico: " + e.getMessage());
+            // FASE III: TABLA DE SÍMBOLOS Y ANÁLISIS SEMÁNTICO COMPLETO
+
+            // 1. Construir tabla de símbolos
+            System.out.println("\nIniciando construcción de tabla de símbolos:");
+            System.out.println("-------------------------------");
+            SymbolTable symbolTable = new SymbolTable();
+            SymbolTableBuilder symbolBuilder = new SymbolTableBuilder(symbolTable);
+            symbolBuilder.visit(tree);
+
+            if (symbolBuilder.hasErrors()) {
+                System.err.println("Errores en la construcción de la tabla de símbolos:");
+                for (String error : symbolBuilder.getErrors()) {
+                    System.err.println("  " + error);
+                }
                 return;
             }
 
-            // Ejecución del visitor normal
-            System.out.println("\nIniciando recorrido del árbol de sintaxis:");
+            symbolTable.printSymbolTable();
+            System.out.println("Tabla de símbolos construida exitosamente");
+            System.out.println("-------------------------------");
+
+            // 2. Análisis semántico completo
+            System.out.println("\nIniciando análisis semántico:");
+            System.out.println("-------------------------------");
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(symbolTable);
+            semanticAnalyzer.visit(tree);
+
+            if (semanticAnalyzer.hasErrors()) {
+                System.err.println("Errores semánticos encontrados:");
+                for (String error : semanticAnalyzer.getErrors()) {
+                    System.err.println("  " + error);
+                }
+                return;
+            }
+
+            System.out.println("Análisis semántico completado con éxito");
+            System.out.println("-------------------------------");
+
+            // 3. Generación de código
+            System.out.println("\nIniciando generación de código:");
+            System.out.println("-------------------------------");
+            CodeGenerator codeGenerator = new CodeGenerator(symbolTable);
+            codeGenerator.visit(tree);
+            String generatedCode = codeGenerator.getGeneratedCode();
+
+            // Guardar código generado a un archivo
+            String nombreArchivoSalida = rutaArchivo.replaceAll("\\.txt$", ".js");
+            Files.write(Paths.get(nombreArchivoSalida), generatedCode.getBytes());
+            System.out.println("Código generado guardado en: " + nombreArchivoSalida);
+
+            // Mostrar código generado
+            System.out.println("\nCódigo generado:");
+            System.out.println("---------------------");
+            System.out.println(generatedCode);
+            System.out.println("---------------------");
+
+            System.out.println("\nCompilación completada con éxito");
+            System.out.println("-------------------------------");
+
+            // 4. Ejecución del visitor original (para mantener compatibilidad)
+            System.out.println("\nIniciando recorrido del árbol con el visitor original:");
             System.out.println("---------------------------------------");
             MyVisitor visitor = new MyVisitor();
             visitor.visit(tree);
             System.out.println("---------------------------------------");
-            System.out.println("Análisis completado con éxito.");
 
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
@@ -149,109 +197,9 @@ public class CompiladorApp {
 
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
-                                int line, int charPositionInLine,
-                                String msg, RecognitionException e) {
+                int line, int charPositionInLine,
+                String msg, RecognitionException e) {
             throw new RuntimeException("Error " + tipo + " en línea " + line + ":" + charPositionInLine + " - " + msg);
-        }
-    }
-
-    private static class SemanticVisitor extends MyLanguageBaseVisitor<Void> {
-        private Map<String, String> symbolTable;
-
-        public SemanticVisitor(Map<String, String> symbolTable) {
-            this.symbolTable = symbolTable;
-        }
-
-        @Override
-        public Void visitVariableDeclarationEmpty(MyLanguageParser.VariableDeclarationEmptyContext ctx) {
-            String id = ctx.ID().getText();
-            String type = ctx.TYPE().getText();
-
-            symbolTable.put(id, type);
-
-            if (ctx.variableDeclarationValue() != null &&
-                    ctx.variableDeclarationValue().variable() != null) {
-
-                MyLanguageParser.VariableContext varCtx = ctx.variableDeclarationValue().variable();
-
-                if (type.equals("int") && varCtx.FLOAT() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un valor flotante a una variable de tipo entero: " + id);
-                }
-
-                if ((type.equals("int") || type.equals("float")) && varCtx.STRING() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un string a una variable numérica: " + id);
-                }
-
-                if (!type.equals("bool") && varCtx.BOOL() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un valor booleano a una variable de tipo: " + type);
-                }
-            }
-
-            return super.visitVariableDeclarationEmpty(ctx);
-        }
-
-        @Override
-        public Void visitVariableAssigment(MyLanguageParser.VariableAssigmentContext ctx) {
-            String id = ctx.ID().getText();
-
-            if (!symbolTable.containsKey(id)) {
-                throw new RuntimeException("Variable no declarada: " + id);
-            }
-
-            String varType = symbolTable.get(id);
-
-            if (ctx.variable() != null) {
-                MyLanguageParser.VariableContext varCtx = ctx.variable();
-
-                if (varType.equals("int") && varCtx.FLOAT() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un valor flotante a una variable de tipo entero: " + id);
-                }
-
-                if ((varType.equals("int") || varType.equals("float")) && varCtx.STRING() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un string a una variable numérica: " + id);
-                }
-
-                if (!varType.equals("bool") && varCtx.BOOL() != null) {
-                    throw new RuntimeException("Error semántico: No se puede asignar un valor booleano a una variable de tipo: " + varType);
-                }
-            }
-
-            return super.visitVariableAssigment(ctx);
-        }
-
-        @Override
-        public Void visitOutputStatement(MyLanguageParser.OutputStatementContext ctx) {
-            if (ctx.ID() != null) {
-                String id = ctx.ID().getText();
-                if (!symbolTable.containsKey(id)) {
-                    throw new RuntimeException("Variable no declarada en write: " + id);
-                }
-            }
-
-            return super.visitOutputStatement(ctx);
-        }
-
-        @Override
-        public Void visitInputStatement(MyLanguageParser.InputStatementContext ctx) {
-            String id = ctx.ID().getText();
-
-            if (!symbolTable.containsKey(id)) {
-                throw new RuntimeException("Variable no declarada en read: " + id);
-            }
-
-            return super.visitInputStatement(ctx);
-        }
-
-        @Override
-        public Void visitCondition(MyLanguageParser.ConditionContext ctx) {
-            if (ctx.ID() != null) {
-                String id = ctx.ID().getText();
-                if (!symbolTable.containsKey(id)) {
-                    throw new RuntimeException("Variable no declarada en condición: " + id);
-                }
-            }
-
-            return super.visitCondition(ctx);
         }
     }
 }
