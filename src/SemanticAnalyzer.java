@@ -248,4 +248,18 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return functionEntry.getReturnType();
     }
     
+    @Override
+    public String visitInputStatement(MyLanguageParser.InputStatementContext ctx) {
+        String varName = ctx.ID().getText();
+        SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
+        
+        if (varEntry == null) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": Variable no declarada '" + varName + "' en read");
+            return "void";
+        }
+        
+        return "void";
+    }
+    
 }
