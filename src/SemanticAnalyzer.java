@@ -106,5 +106,33 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return varType;
     }
     
-
+    @Override
+    public String visitVariableAssigment(MyLanguageParser.VariableAssigmentContext ctx) {
+        String varName = ctx.ID().getText();
+        SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
+        
+        if (varEntry == null) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": Variable no declarada '" + varName + "'");
+            return "unknown";
+        }
+        
+        String varType = varEntry.getType();
+        
+        // Verificar tipo del valor asignado
+        if (ctx.variable() != null) {
+            String valueType = visit(ctx.variable());
+            
+            // Verificar compatibilidad de tipos
+            if (!isTypeCompatible(varType, valueType)) {
+                errors.add("Error en línea " + ctx.getStart().getLine() + 
+                         ": No se puede asignar valor de tipo '" + valueType + 
+                         "' a variable '" + varName + "' de tipo '" + varType + "'");
+            }
+        }
+        
+        return varType;
+    }
+    
+   
 }
