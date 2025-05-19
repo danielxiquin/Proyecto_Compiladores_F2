@@ -184,5 +184,21 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "void";
     }
     
+    @Override
+    public String visitWhileStatement(MyLanguageParser.WhileStatementContext ctx) {
+        // Verificar que la condición sea booleana
+        String conditionType = visit(ctx.whichCondition());
+        if (!conditionType.equals("bool")) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": La condición del 'while' debe ser de tipo booleano, pero es de tipo '" + 
+                     conditionType + "'");
+        }
+        
+        // Visitar el cuerpo del while
+        visit(ctx.statementListTail());
+        
+        return "void";
+    }
+    
     
 }
