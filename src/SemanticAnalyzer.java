@@ -213,5 +213,23 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "unknown";
     }
     
+    @Override
+    public String visitFunctionCall(MyLanguageParser.FunctionCallContext ctx) {
+        String functionName = ctx.ID().getText();
+        SymbolTable.SymbolEntry functionEntry = symbolTable.lookup(functionName);
+        
+        if (functionEntry == null || !functionEntry.getKind().equals("function")) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": Función no declarada '" + functionName + "'");
+            return "unknown";
+        }
+        
+        // Verificar número y tipos de argumentos
+        // Aquí se implementaría la lógica para verificar parámetros
+        // (este código es simplificado)
+        
+        return functionEntry.getReturnType();
+    }
+    
     
 }
