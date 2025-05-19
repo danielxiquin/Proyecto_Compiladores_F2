@@ -157,5 +157,32 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "unknown";
     }
     
+    @Override
+    public String visitFigure(MyLanguageParser.FigureContext ctx) {
+        // Una figura (número entero) siempre tiene tipo int
+        return "int";
+    }
+    
+    @Override
+    public String visitIfStatement(MyLanguageParser.IfStatementContext ctx) {
+        // Verificar que la condición sea booleana
+        String conditionType = visit(ctx.whichCondition());
+        if (!conditionType.equals("bool")) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": La condición del 'if' debe ser de tipo booleano, pero es de tipo '" + 
+                     conditionType + "'");
+        }
+        
+        // Visitar el cuerpo del if
+        visit(ctx.statementListTail());
+        
+        // Visitar el cuerpo del else si existe
+        if (ctx.elsePart() != null) {
+            visit(ctx.elsePart());
+        }
+        
+        return "void";
+    }
+    
     
 }
