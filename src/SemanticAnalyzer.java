@@ -261,7 +261,8 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         
         return "void";
     }
-
+    
+    @Override
     public String visitOutputStatement(MyLanguageParser.OutputStatementContext ctx) {
         if (ctx.ID() != null) {
             String varName = ctx.ID().getText();
