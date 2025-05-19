@@ -52,4 +52,28 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "function";
     }
     
+    @Override
+    public String visitMain(MyLanguageParser.MainContext ctx) {
+        currentFunction = "main";
+        
+        // Entrar al ámbito de main
+        symbolTable.enterScope("main");
+        
+        // Visitar el cuerpo de main
+        if (ctx.statement() != null) {
+            visit(ctx.statement());
+        }
+        
+        if (ctx.statementListTail() != null) {
+            visit(ctx.statementListTail());
+        }
+        
+        // Salir del ámbito de main
+        symbolTable.exitScope();
+        currentFunction = null;
+        
+        return "void";
+    }
+    
+  
 }
