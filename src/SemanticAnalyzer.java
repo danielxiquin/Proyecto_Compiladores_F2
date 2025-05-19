@@ -231,5 +231,21 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return functionEntry.getReturnType();
     }
     
+    @Override
+    public String visitFunctionCallExpr(MyLanguageParser.FunctionCallExprContext ctx) {
+        String functionName = ctx.ID().getText();
+        SymbolTable.SymbolEntry functionEntry = symbolTable.lookup(functionName);
+        
+        if (functionEntry == null || !functionEntry.getKind().equals("function")) {
+            errors.add("Error en línea " + ctx.getStart().getLine() + 
+                     ": Función no declarada '" + functionName + "'");
+            return "unknown";
+        }
+        
+        // Verificar argumentos
+        // (código simplificado)
+        
+        return functionEntry.getReturnType();
+    }
     
 }
