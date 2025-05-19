@@ -75,5 +75,36 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         return "void";
     }
     
-  
+    @Override
+    public String visitVariableDeclarationEmpty(MyLanguageParser.VariableDeclarationEmptyContext ctx) {
+        String varType = ctx.TYPE().getText();
+        String varName = ctx.ID().getText();
+        
+        // Si hay un valor inicial, verificar tipo
+        if (ctx.variableDeclarationValue() != null) {
+            if (ctx.variableDeclarationValue().variable() != null) {
+                String valueType = visit(ctx.variableDeclarationValue().variable());
+                
+                // Verificar compatibilidad de tipos
+                if (!isTypeCompatible(varType, valueType)) {
+                    errors.add("Error en línea " + ctx.getStart().getLine() + 
+                             ": No se puede asignar valor de tipo '" + valueType + 
+                             "' a variable '" + varName + "' de tipo '" + varType + "'");
+                }
+            } else if (ctx.variableDeclarationValue().functionCallExpr() != null) {
+                String functionCallType = visit(ctx.variableDeclarationValue().functionCallExpr());
+                
+                // Verificar compatibilidad con el tipo de retorno de la función
+                if (!isTypeCompatible(varType, functionCallType)) {
+                    errors.add("Error en línea " + ctx.getStart().getLine() + 
+                             ": No se puede asignar retorno de función de tipo '" + functionCallType + 
+                             "' a variable '" + varName + "' de tipo '" + varType + "'");
+                }
+            }
+        }
+        
+        return varType;
+    }
+    
+
 }
