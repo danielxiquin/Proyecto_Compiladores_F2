@@ -261,5 +261,32 @@ public class SemanticAnalyzer extends MyLanguageBaseVisitor<String> {
         
         return "void";
     }
+
+    public String visitOutputStatement(MyLanguageParser.OutputStatementContext ctx) {
+        if (ctx.ID() != null) {
+            String varName = ctx.ID().getText();
+            SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
+            
+            if (varEntry == null) {
+                errors.add("Error en línea " + ctx.getStart().getLine() + 
+                         ": Variable no declarada '" + varName + "' en write");
+            }
+        }
+        
+        return "void";
+    }
+    
+    // Método auxiliar para verificar compatibilidad de tipos
+    private boolean isTypeCompatible(String targetType, String sourceType) {
+        if (targetType.equals(sourceType)) return true;
+        
+        // Permitir conversiones implícitas específicas
+        if (targetType.equals("float") && sourceType.equals("int")) return true;
+        
+        // Si algún tipo es desconocido, permitir la asignación para evitar errores en cascada
+        if (targetType.equals("unknown") || sourceType.equals("unknown")) return true;
+        
+        return false;
+    }
     
 }
