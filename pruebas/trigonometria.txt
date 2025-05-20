@@ -1,0 +1,18 @@
+
+function esPar(int n) {
+    int resultado = n mod 2;
+    string texto;
+    if (resultado == 0) {
+        texto = "es par" ;
+    } else {
+        texto = "es impar";
+    }
+    return texto;
+}
+
+main() {
+    int animal = 2;
+    int numero = animal;
+    string resultado2 = esPar(2);
+    write(resultado2);
+}

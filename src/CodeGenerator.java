@@ -15,7 +15,19 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
     }
 
     public String getGeneratedCode() {
-        return codeBuilder.toString();
+        // Obtener el código generado
+        String code = codeBuilder.toString();
+
+        // Primera pasada: reemplazar patrones básicos de "mod"
+        code = code.replaceAll("\\s+mod\\s+", " % ");
+
+        // Segunda pasada: reemplazar el patrón específico "Number(mod)"
+        code = code.replaceAll("Number\\s*\\(\\s*mod\\s*\\)", "%");
+
+        // Tercera pasada: limpiar espacios extra alrededor del operador
+        code = code.replaceAll("\\s+%\\s+", " % ");
+
+        return code;
     }
 
     @Override
@@ -172,13 +184,29 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
         if (ctx.variableDeclarationValue() != null) {
             if (ctx.variableDeclarationValue().variable() != null) {
                 codeBuilder.append(" = ");
-                String value = visitVariable(ctx.variableDeclarationValue().variable());
 
-                // Aplicar conversión para tipos numéricos
-                if (varType.equals("int") || varType.equals("float")) {
-                    codeBuilder.append("Number(").append(value).append(")");
+                // Verifica si es una variable que contiene figuras con operaciones aritméticas
+                MyLanguageParser.VariableContext varCtx = ctx.variableDeclarationValue().variable();
+                if (varCtx.figure() != null) {
+                    // Usamos visitFigure que ya tenemos corregido
+                    String figure = visitFigure(varCtx.figure());
+
+                    // Para tipos numéricos, puede ser necesaria una conversión
+                    if (varType.equals("int") || varType.equals("float")) {
+                        codeBuilder.append("Number(").append(figure).append(")");
+                    } else {
+                        codeBuilder.append(figure);
+                    }
                 } else {
-                    codeBuilder.append(value);
+                    // Para otros tipos de variables
+                    String value = visitVariable(ctx.variableDeclarationValue().variable());
+
+                    // Aplicar conversión para tipos numéricos
+                    if (varType.equals("int") || varType.equals("float")) {
+                        codeBuilder.append("Number(").append(value).append(")");
+                    } else {
+                        codeBuilder.append(value);
+                    }
                 }
             } else if (ctx.variableDeclarationValue().functionCallExpr() != null) {
                 codeBuilder.append(" = ");
@@ -274,6 +302,7 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
         return result.toString();
     }
 
+    // Modifica el método visitAritmetica con un enfoque directo
     @Override
     public String visitAritmetica(MyLanguageParser.AritmeticaContext ctx) {
         if (ctx.operator() == null) {
@@ -281,29 +310,31 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
         }
 
         StringBuilder result = new StringBuilder();
+
+        // Obtener el texto del operador
         String operatorText = ctx.operator().getText();
 
-        // Solo asegurarse de conversión para operadores aritméticos
+        // Comprobar explícitamente si es "mod" y reemplazarlo por "%"
+        if (operatorText.equals("mod")) {
+            operatorText = "%";
+        }
+
         result.append(" ").append(operatorText).append(" ");
 
         // Construir la parte derecha de la operación
-        String rightOperand = "";
         if (ctx.DIGITO() != null) {
-            rightOperand = ctx.DIGITO().getText();
+            result.append(ctx.DIGITO().getText());
         } else if (ctx.ID() != null) {
-            // Para variables, podríamos necesitar una conversión
             String varName = ctx.ID().getText();
             SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
             if (varEntry != null && (varEntry.getType().equals("int") || varEntry.getType().equals("float"))) {
                 // Ya es un número, usar directamente
-                rightOperand = varName;
+                result.append(varName);
             } else {
                 // Para asegurar, convertimos a número
-                rightOperand = "Number(" + varName + ")";
+                result.append("Number(").append(varName).append(")");
             }
         }
-
-        result.append(rightOperand);
 
         // Procesar operaciones aritméticas adicionales
         if (ctx.aritmetica() != null) {
@@ -316,7 +347,6 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
 
     @Override
     public String visitOperator(MyLanguageParser.OperatorContext ctx) {
-        // Simplemente devuelve el operador
         if (ctx.PLUS() != null) {
             return "+";
         } else if (ctx.MINUS() != null) {
@@ -325,8 +355,9 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
             return "*";
         } else if (ctx.DIV() != null) {
             return "/";
+        } else if (ctx.PERCENT() != null) {
+            return "%";
         }
-
         return "";
     }
 
@@ -564,11 +595,7 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
         } else if (ctx.ID() != null) {
             // Caso original: imprimir el valor de una variable
             codeBuilder.append(ctx.ID().getText());
-        } else if (ctx.functionCallExpr() != null) {
-            // Nuevo caso: imprimir el resultado de una llamada a función
-            String functionCall = visitFunctionCallExpr(ctx.functionCallExpr());
-            codeBuilder.append(functionCall);
-        }
+        } 
 
         codeBuilder.append(");\n");
         return null;

@@ -58,9 +58,9 @@ parameterListTail: COMMA functionVariableDeclaration parameterListTail | ;
 
 inputStatement: READ LPAREN ID RPAREN SEMICOLON;
 
-outputStatement: WRITE LPAREN (STRING | ID | functionCallExpr) RPAREN SEMICOLON;
+outputStatement: WRITE LPAREN (STRING | ID ) RPAREN SEMICOLON;
 
-operator: PLUS | MINUS | MULT | DIV;
+operator: PLUS | MINUS | MULT | DIV | PERCENT |;
 
 TYPE: 'int' | 'float' | 'string' | 'bool';
 BOOL: 'true' | 'false';
@@ -89,6 +89,7 @@ GREATER_THAN: '>';
 SYMBOL: [!@#$%^&_?:|];
 
 PLUS: '+';
+PERCENT: 'mod';
 MINUS: '-';
 MULT: '*';
 DIV: '/';
