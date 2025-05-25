@@ -191,9 +191,13 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
                     // Usamos visitFigure que ya tenemos corregido
                     String figure = visitFigure(varCtx.figure());
 
-                    // Para tipos numéricos, puede ser necesaria una conversión
+                    // Aplicar conversión según el tipo de la variable
                     if (varType.equals("int") || varType.equals("float")) {
                         codeBuilder.append("Number(").append(figure).append(")");
+                    } else if (varType.equals("bool")) {
+                        codeBuilder.append("Boolean(").append(figure).append(")");
+                    } else if (varType.equals("string")) {
+                        codeBuilder.append("String(").append(figure).append(")");
                     } else {
                         codeBuilder.append(figure);
                     }
@@ -201,9 +205,13 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
                     // Para otros tipos de variables
                     String value = visitVariable(ctx.variableDeclarationValue().variable());
 
-                    // Aplicar conversión para tipos numéricos
+                    // Aplicar conversión según el tipo de la variable
                     if (varType.equals("int") || varType.equals("float")) {
                         codeBuilder.append("Number(").append(value).append(")");
+                    } else if (varType.equals("bool")) {
+                        codeBuilder.append("Boolean(").append(value).append(")");
+                    } else if (varType.equals("string")) {
+                        codeBuilder.append("String(").append(value).append(")");
                     } else {
                         codeBuilder.append(value);
                     }
@@ -212,9 +220,13 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
                 codeBuilder.append(" = ");
                 String value = visitFunctionCallExpr(ctx.variableDeclarationValue().functionCallExpr());
 
-                // Aplicar conversión para tipos numéricos
+                // Aplicar conversión según el tipo de la variable
                 if (varType.equals("int") || varType.equals("float")) {
                     codeBuilder.append("Number(").append(value).append(")");
+                } else if (varType.equals("bool")) {
+                    codeBuilder.append("Boolean(").append(value).append(")");
+                } else if (varType.equals("string")) {
+                    codeBuilder.append("String(").append(value).append(")");
                 } else {
                     codeBuilder.append(value);
                 }
@@ -229,7 +241,7 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
                 }
             }
         } else {
-            // Valores por defecto según el tipo
+            // Valores por defecto según el tipo (cuando no hay valor inicial)
             if (varType.equals("int") || varType.equals("float")) {
                 codeBuilder.append(" = 0");
             } else if (varType.equals("string")) {
@@ -595,7 +607,7 @@ public class CodeGenerator extends MyLanguageBaseVisitor<String> {
         } else if (ctx.ID() != null) {
             // Caso original: imprimir el valor de una variable
             codeBuilder.append(ctx.ID().getText());
-        } 
+        }
 
         codeBuilder.append(");\n");
         return null;
