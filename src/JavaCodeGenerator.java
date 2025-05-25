@@ -2,14 +2,15 @@ import java.util.*;
 
 public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
     private SymbolTable symbolTable;
-    private String className;
     private StringBuilder codeBuilder = new StringBuilder();
     private String currentFunction = null;
     private int indentLevel = 0;
+    private String className;
 
-    public JavaCodeGenerator(SymbolTable symbolTable, String name) {
+    public JavaCodeGenerator(SymbolTable symbolTable,String className ) {
         this.symbolTable = symbolTable;
-        this.className = name.replaceAll("\\.txt$", "");;
+        this.className = className.replaceAll("\\.txt$", "");;
+
     }
 
     private String indent() {
@@ -38,7 +39,7 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
         codeBuilder.append(indent()).append("private static DecimalFormat df = new DecimalFormat(\"#.####\");\n\n");
 
         // Funciones predefinidas para entrada/salida
-        codeBuilder.append(indent()).append("// Funciones predefinidas\n");
+        codeBuilder.append(indent()).append("// Funciones predefinidas para entrada\n");
         codeBuilder.append(indent()).append("public static int readInt() {\n");
         indentLevel++;
         codeBuilder.append(indent()).append("return scanner.nextInt();\n");
@@ -57,25 +58,39 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
         indentLevel--;
         codeBuilder.append(indent()).append("}\n\n");
 
-        codeBuilder.append(indent()).append("public static void writeInt(int value) {\n");
+        codeBuilder.append(indent()).append("public static boolean readBoolean() {\n");
+        indentLevel++;
+        codeBuilder.append(indent()).append("return scanner.nextBoolean();\n");
+        indentLevel--;
+        codeBuilder.append(indent()).append("}\n\n");
+
+        // Método write genérico con sobrecarga
+        codeBuilder.append(indent()).append("public static void write(int value) {\n");
         indentLevel++;
         codeBuilder.append(indent()).append("System.out.println(value);\n");
         indentLevel--;
         codeBuilder.append(indent()).append("}\n\n");
 
-        codeBuilder.append(indent()).append("public static void writeFloat(float value) {\n");
+        codeBuilder.append(indent()).append("public static void write(float value) {\n");
         indentLevel++;
         codeBuilder.append(indent()).append("System.out.println(df.format(value));\n");
         indentLevel--;
         codeBuilder.append(indent()).append("}\n\n");
 
-        codeBuilder.append(indent()).append("public static void writeString(String str) {\n");
+        codeBuilder.append(indent()).append("public static void write(String str) {\n");
         indentLevel++;
         codeBuilder.append(indent()).append("System.out.println(str);\n");
         indentLevel--;
         codeBuilder.append(indent()).append("}\n\n");
 
-        codeBuilder.append(indent()).append("public static void writeBoolean(boolean value) {\n");
+        codeBuilder.append(indent()).append("public static void write(boolean value) {\n");
+        indentLevel++;
+        codeBuilder.append(indent()).append("System.out.println(value);\n");
+        indentLevel--;
+        codeBuilder.append(indent()).append("}\n\n");
+
+        // También agregamos un método genérico para Object por si acaso
+        codeBuilder.append(indent()).append("public static void write(Object value) {\n");
         indentLevel++;
         codeBuilder.append(indent()).append("System.out.println(value);\n");
         indentLevel--;
@@ -613,41 +628,16 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
 
     @Override
     public String visitOutputStatement(MyLanguageParser.OutputStatementContext ctx) {
-        codeBuilder.append(indent());
+        codeBuilder.append(indent()).append("write(");
 
         if (ctx.STRING() != null) {
-            codeBuilder.append("writeString(").append(ctx.STRING().getText()).append(")");
+            codeBuilder.append(ctx.STRING().getText());
         } else if (ctx.ID() != null) {
             String varName = ctx.ID().getText();
-            SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
-
-            if (varEntry != null) {
-                String varType = varEntry.getType();
-                if (varType.equals("float")) {
-                    codeBuilder.append("writeFloat(").append(varName).append(")");
-                } else if (varType.equals("string")) {
-                    codeBuilder.append("writeString(").append(varName).append(")");
-                } else if (varType.equals("bool")) {
-                    codeBuilder.append("writeBoolean(").append(varName).append(")");
-                } else {
-                    codeBuilder.append("writeInt(").append(varName).append(")");
-                }
-            } else {
-                // Heurística por nombre de variable
-                if (varName.toLowerCase().contains("temp") ||
-                        varName.toLowerCase().contains("resultado") ||
-                        varName.toLowerCase().contains("area") ||
-                        varName.toLowerCase().contains("promedio") ||
-                        varName.toLowerCase().contains("decimal") ||
-                        varName.toLowerCase().contains("radio")) {
-                    codeBuilder.append("writeFloat(").append(varName).append(")");
-                } else {
-                    codeBuilder.append("writeInt(").append(varName).append(")");
-                }
-            }
+            codeBuilder.append(varName);
         }
 
-        codeBuilder.append(";\n");
+        codeBuilder.append(");\n");
         return null;
     }
 
@@ -666,10 +656,13 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
                 codeBuilder.append(varName).append(" = readFloat()");
             } else if (varType.equals("string")) {
                 codeBuilder.append(varName).append(" = readString()");
+            } else if (varType.equals("bool")) {
+                codeBuilder.append(varName).append(" = readBoolean()");
             } else {
                 codeBuilder.append(varName).append(" = readInt()");
             }
         } else {
+            // Si no conocemos el tipo, usar int por defecto
             codeBuilder.append(varName).append(" = readInt()");
         }
 
