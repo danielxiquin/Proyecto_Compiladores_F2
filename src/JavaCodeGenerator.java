@@ -7,10 +7,9 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
     private int indentLevel = 0;
     private String className;
 
-    public JavaCodeGenerator(SymbolTable symbolTable,String className ) {
+    public JavaCodeGenerator(SymbolTable symbolTable, String className) {
         this.symbolTable = symbolTable;
-        this.className = className.replaceAll("\\.txt$", "");;
-
+        this.className = className.replaceAll("\\.txt$", "");
     }
 
     private String indent() {
@@ -177,17 +176,14 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
         String functionName = ctx.ID().getText();
         currentFunction = functionName;
 
-        String returnType = getFunctionReturnTypeByName(functionName);
+        // ✅ MEJORA: Obtener el tipo directamente de la gramática
+        // Ahora la gramática requiere: TYPE FUNCTION ID (...)
+        // Ejemplo: "int function calcular(...)" o "float function convertir(...)"
+        // Esto elimina la necesidad de heurísticas y adivinanzas!
+        String declaredReturnType = ctx.TYPE().getText();
+        String javaReturnType = mapTypeToJava(declaredReturnType);
 
-        if (returnType.equals("unknown") && ctx.variable() != null) {
-            returnType = inferReturnType(ctx.variable());
-        }
-
-        if (returnType.equals("unknown")) {
-            returnType = "int";
-        }
-
-        codeBuilder.append(indent()).append("public static ").append(returnType).append(" ").append(functionName).append("(");
+        codeBuilder.append(indent()).append("public static ").append(javaReturnType).append(" ").append(functionName).append("(");
 
         if (ctx.parameterList() != null) {
             String params = visitParameterList(ctx.parameterList());
@@ -214,83 +210,8 @@ public class JavaCodeGenerator extends MyLanguageBaseVisitor<String> {
         return null;
     }
 
-    private String getFunctionReturnTypeByName(String functionName) {
-        // Funciones que definitivamente retornan float
-        if (functionName.equals("convertirCelsiusAFahrenheit") ||
-                functionName.equals("convertirFahrenheitACelsius") ||
-                functionName.equals("calcularAreaCirculo") ||
-                functionName.equals("calcularAreaRectangulo") ||
-                functionName.equals("promedioTresNumeros") ||
-                functionName.contains("promedio") ||
-                functionName.contains("area") ||
-                functionName.contains("Area") ||
-                functionName.contains("convertir")) {
-            return "float";
-        }
-
-        // Funciones que definitivamente retornan boolean
-        if (functionName.equals("esPar") ||
-                functionName.contains("verificar") ||
-                functionName.contains("es") ||
-                functionName.contains("Es")) {
-            return "boolean";
-        }
-
-        // Funciones que definitivamente retornan int
-        if (functionName.equals("calcularPotencia") ||
-                functionName.equals("calcularFactorial") ||
-                functionName.contains("contar") ||
-                functionName.contains("calcular")) {
-            return "int";
-        }
-
-        return "unknown";
-    }
-
-    private String inferReturnType(MyLanguageParser.VariableContext ctx) {
-        if (ctx.FLOAT() != null) {
-            return "float";
-        }
-
-        if (ctx.figure() != null) {
-            return "int";
-        }
-
-        if (ctx.STRING() != null) {
-            return "String";
-        }
-
-        if (ctx.BOOL() != null) {
-            return "boolean";
-        }
-
-        if (ctx.ID() != null) {
-            String varName = ctx.ID().getText();
-            SymbolTable.SymbolEntry varEntry = symbolTable.lookup(varName);
-
-            if (varEntry != null) {
-                String varType = varEntry.getType();
-                return mapTypeToJava(varType);
-            }
-
-            if (currentFunction != null) {
-                if (currentFunction.toLowerCase().contains("convertir") ||
-                        currentFunction.toLowerCase().contains("area") ||
-                        currentFunction.toLowerCase().contains("promedio")) {
-                    return "float";
-                }
-            }
-
-            if (ctx.aritmetica() != null && !ctx.aritmetica().getText().isEmpty()) {
-                String arithmeticText = ctx.aritmetica().getText();
-                if (arithmeticText.contains("/")) {
-                    return "float";
-                }
-            }
-        }
-
-        return "int";
-    }
+    // Métodos auxiliares simplificados - Ya no necesitamos inferencia compleja
+    // porque el tipo está explícito en la gramática
 
     @Override
     public String visitVariableDeclarationEmpty(MyLanguageParser.VariableDeclarationEmptyContext ctx) {

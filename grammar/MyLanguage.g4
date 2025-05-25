@@ -50,7 +50,7 @@ whileStatement: WHILE LPAREN whichCondition RPAREN LBRACE statementListTail RBRA
 
 functionCall: ID LPAREN parameterList RPAREN SEMICOLON;
 
-functionDeclaration: FUNCTION ID LPAREN parameterList RPAREN LBRACE statementListTail RETURN variable SEMICOLON RBRACE;
+functionDeclaration: TYPE FUNCTION ID LPAREN parameterList RPAREN LBRACE statementListTail RETURN variable SEMICOLON RBRACE;
 
 parameterList: functionVariableDeclaration parameterListTail | ;
 
