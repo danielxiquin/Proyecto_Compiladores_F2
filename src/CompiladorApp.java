@@ -14,6 +14,7 @@ import java.util.Map;
  * Clase principal del compilador que integra todas las fases.
  */
 public class CompiladorApp {
+    private static String[] nameFile = {"erroresSemanticos.txt"};
     private static Map<String, String> symbolTable = new HashMap<>();
 
     public static void main(String[] args) {
@@ -26,9 +27,7 @@ public class CompiladorApp {
     }
 
     private static void analizarArchivosDePrueba() {
-        String[] archivos = {
-                "trigonometria.txt"
-        };
+        String[] archivos = nameFile;
 
         for (String archivo : archivos) {
             System.out.println("\n===========================================");
@@ -150,12 +149,12 @@ public class CompiladorApp {
             // 3. Generación de código
             System.out.println("\nIniciando generación de código:");
             System.out.println("-------------------------------");
-            CodeGenerator codeGenerator = new CodeGenerator(symbolTable);
+            JavaCodeGenerator codeGenerator = new JavaCodeGenerator(symbolTable, nameFile[0]);
             codeGenerator.visit(tree);
             String generatedCode = codeGenerator.getGeneratedCode();
 
             // Guardar código generado a un archivo
-            String nombreArchivoSalida = rutaArchivo.replaceAll("\\.txt$", ".js");
+            String nombreArchivoSalida = rutaArchivo.replaceAll("\\.txt$", ".java");
             Files.write(Paths.get(nombreArchivoSalida), generatedCode.getBytes());
             System.out.println("Código generado guardado en: " + nombreArchivoSalida);
 
