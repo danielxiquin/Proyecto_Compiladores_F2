@@ -1,0 +1,170 @@
+function float convertirCelsiusAFahrenheit(float celsius) {
+    float temp1 = celsius * 9;
+    float temp2 = temp1 / 5;
+    float resultado = temp2 + 32;
+    return resultado;
+}
+
+function float convertirFahrenheitACelsius(float fahrenheit) {
+    float temp1 = fahrenheit - 32;
+    float temp2 = temp1 * 5;
+    float resultado = temp2 / 9;
+    return resultado;
+}
+
+function float calcularAreaCirculo(float radio) {
+    float pi = 3.1416;
+    float radioSquare = radio * radio;
+    float resultado = pi * radioSquare;
+    return resultado;
+}
+
+function int calcularAreaRectangulo(float largo, float ancho) {
+    float resultado = largo * ancho;
+    return resultado;
+}
+
+function float esPar(int numero) {
+    int resto = numero mod 2;
+    return resto;
+}
+
+function int calcularPotencia(int base, int exponente) {
+    int resultado = 1;
+    int contador = 0;
+    while (contador < exponente) {
+        resultado = resultado * base;
+        contador = contador + 1;
+    }
+    return resultado;
+}
+
+function int calcularFactorial(int numero) {
+    int resultado = 1;
+    int contador = 1;
+    while (contador <= numero) {
+        resultado = resultado * contador;
+        contador = contador + 1;
+    }
+    return resultado;
+}
+
+function float promedioTresNumeros(float a, float b, float c) {
+    float suma = a + b + c;
+    float resultado = suma / 3;
+    return resultado;
+}
+
+main() {
+    float tempCelsius;
+    float tempFahrenheit;
+    float resultadoTemp1;
+    float resultadoTemp2;
+    float radio;
+    float largo;
+    float ancho;
+    float areaCirculo;
+    float areaRectangulo;
+    int numero;
+    int base;
+    int exponente;
+    int resultadoPar;
+    int resultadoPotencia;
+    int resultadoFactorial;
+    float num1;
+    float num2;
+    float num3;
+    float promedio;
+    
+    write("SISTEMA DE CALCULOS MATEMATICOS");
+    
+    write("CONVERSION DE TEMPERATURAS");
+    write("Ingrese temperatura en Celsius:");
+    read(tempCelsius);
+    
+    resultadoTemp1 = convertirCelsiusAFahrenheit(tempCelsius);
+    write("Temperatura en Fahrenheit:");
+    write(resultadoTemp1);
+    
+    write("Ingrese temperatura en Fahrenheit:");
+    read(tempFahrenheit);
+    
+    resultadoTemp2 = convertirFahrenheitACelsius(tempFahrenheit);
+    write("Temperatura en Celsius:");
+    write(resultadoTemp2);
+    
+    write("CALCULO DE AREAS");
+    write("Ingrese el radio del circulo:");
+    read(radio);
+    
+    areaCirculo = calcularAreaCirculo(radio);
+    write("Area del circulo:");
+    write(areaCirculo);
+    
+    write("Ingrese largo del rectangulo:");
+    read(largo);
+    write("Ingrese ancho del rectangulo:");
+    read(ancho);
+    
+    areaRectangulo = calcularAreaRectangulo(largo, ancho);
+    write("Area del rectangulo:");
+    write(areaRectangulo);
+    
+    write("VERIFICACIONES NUMERICAS");
+    write("Ingrese un numero entero:");
+    read(numero);
+    
+    resultadoPar = esPar(numero);
+    if (resultadoPar == 0) {
+        write("El numero es par");
+    } else {
+        write("El numero es impar");
+    }
+    
+    write("CALCULOS MATEMATICOS");
+    write("Ingrese la base para potencia:");
+    read(base);
+    write("Ingrese el exponente:");
+    read(exponente);
+    
+    if (exponente >= 0) {
+        if (exponente <= 10) {
+            resultadoPotencia = calcularPotencia(base, exponente);
+            write("Resultado de la potencia:");
+            write(resultadoPotencia);
+        } else {
+            write("Exponente muy grande");
+        }
+    } else {
+        write("Exponente debe ser positivo");
+    }
+    
+    write("Ingrese un numero para calcular factorial:");
+    read(numero);
+    
+    if (numero >= 0) {
+        if (numero <= 10) {
+            resultadoFactorial = calcularFactorial(numero);
+            write("Factorial del numero:");
+            write(resultadoFactorial);
+        } else {
+            write("Numero muy grande para factorial");
+        }
+    } else {
+        write("Numero debe ser positivo");
+    }
+    
+    write("CALCULO DE PROMEDIO");
+    write("Ingrese el primer numero:");
+    read(num1);
+    write("Ingrese el segundo numero:");
+    read(num2);
+    write("Ingrese el tercer numero:");
+    read(num3);
+    
+    promedio = promedioTresNumeros(num1, num2, num3);
+    write("El promedio es:");
+    write(promedio);
+    
+    write("FIN DEL PROGRAMA");
+}

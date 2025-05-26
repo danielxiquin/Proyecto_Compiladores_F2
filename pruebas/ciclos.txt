@@ -1,0 +1,224 @@
+int function sumarNumeros(int inicio, int fin) {
+    int suma = 0;
+    int contador = inicio;
+    while (contador <= fin) {
+        suma = suma + contador;
+        contador = contador + 1;
+    }
+    return suma;
+}
+
+int function contarPares(int inicio, int fin) {
+    int contador = inicio;
+    int cantidadPares = 0;
+    int resto;
+    while (contador <= fin) {
+        resto = contador mod 2;
+        if (resto == 0) {
+            cantidadPares = cantidadPares + 1;
+        }
+        contador = contador + 1;
+    }
+    return cantidadPares;
+}
+
+int function multiplicarRango(int numero, int veces) {
+    int resultado = 0;
+    int contador = 1;
+    while (contador <= veces) {
+        resultado = resultado + numero;
+        contador = contador + 1;
+    }
+    return resultado;
+}
+
+int function generarTablaMultiplicar(int numero, int limite) {
+    int contador = 1;
+    int resultado;
+    while (contador <= limite) {
+        resultado = multiplicarRango(numero, contador);
+        write(resultado);
+        contador = contador + 1;
+    }
+    return limite;
+}
+
+int function sumarDigitos(int numero) {
+    int suma = 0;
+    int digito;
+    while (numero > 0) {
+        digito = numero mod 10;
+        suma = suma + digito;
+        numero = numero / 10;
+    }
+    return suma;
+}
+
+int function encontrarMaximo(int a, int b, int c) {
+    int maximo = a;
+    if (b > maximo) {
+        maximo = b;
+    }
+    if (c > maximo) {
+        maximo = c;
+    }
+    return maximo;
+}
+
+int function calcularPromedio(int suma, int cantidad) {
+    int promedio = suma / cantidad;
+    return promedio;
+}
+
+int function verificarPrimo(int numero) {
+    int resultado = 1;
+    int divisor = 2;
+    int resto;
+    if (numero <= 1) {
+        resultado = 0;
+    } else {
+        if (numero == 2) {
+            resultado = 1;
+        } else {
+            resto = numero mod 2;
+            if (resto == 0) {
+                resultado = 0;
+            } else {
+                int temp3 = divisor * divisor;
+                while (temp3 <= numero) {
+                    resto = numero mod divisor;
+                    if (resto == 0) {
+                        resultado = 0;
+                        divisor = numero;
+                    }
+                    divisor = divisor + 1;
+                }
+            }
+        }
+    }
+    return resultado;
+}
+
+main() {
+    int opcion = 1;
+    int numero1;
+    int numero2;
+    int numero3;
+    int limite;
+    int resultado;
+    int suma;
+    int contador;
+    int esPrimo;
+    
+    write("SISTEMA DE ANALISIS NUMERICO");
+    
+    while (opcion != 0) {
+        write("MENU DE OPCIONES");
+        write("1. Sumar numeros en un rango");
+        write("2. Contar numeros pares en un rango");
+        write("3. Generar tabla de multiplicar");
+        write("4. Sumar digitos de un numero");
+        write("5. Encontrar el maximo de tres numeros");
+        write("6. Calcular promedio de numeros ingresados");
+        write("7. Verificar si un numero es primo");
+        write("0. Salir");
+        write("Seleccione una opcion:");
+        
+        read(opcion);
+        
+        if (opcion == 1) {
+            write("Ingrese el numero inicial:");
+            read(numero1);
+            write("Ingrese el numero final:");
+            read(numero2);
+            
+            resultado = sumarNumeros(numero1, numero2);
+            write("La suma del rango es:");
+            write(resultado);
+        }
+        
+        if (opcion == 2) {
+            write("Ingrese el numero inicial:");
+            read(numero1);
+            write("Ingrese el numero final:");
+            read(numero2);
+            
+            resultado = contarPares(numero1, numero2);
+            write("Cantidad de numeros pares:");
+            write(resultado);
+        }
+        
+        if (opcion == 3) {
+            write("Ingrese el numero para la tabla:");
+            read(numero1);
+            write("Ingrese hasta que numero multiplicar:");
+            read(limite);
+            
+            write("Tabla de multiplicar:");
+            resultado = generarTablaMultiplicar(numero1, limite);
+        }
+        
+        if (opcion == 4) {
+            write("Ingrese un numero:");
+            read(numero1);
+            
+            resultado = sumarDigitos(numero1);
+            write("La suma de los digitos es:");
+            write(resultado);
+        }
+        
+        if (opcion == 5) {
+            write("Ingrese el primer numero:");
+            read(numero1);
+            write("Ingrese el segundo numero:");
+            read(numero2);
+            write("Ingrese el tercer numero:");
+            read(numero3);
+            
+            resultado = encontrarMaximo(numero1, numero2, numero3);
+            write("El numero maximo es:");
+            write(resultado);
+        }
+        
+        if (opcion == 6) {
+            write("Cuantos numeros desea promediar?");
+            read(limite);
+            
+            suma = 0;
+            contador = 1;
+            while (contador <= limite) {
+                write("Ingrese numero:");
+                read(numero1);
+                suma = suma + numero1;
+                contador = contador + 1;
+            }
+            
+            resultado = calcularPromedio(suma, limite);
+            write("El promedio es:");
+            write(resultado);
+        }
+        
+        if (opcion == 7) {
+            write("Ingrese un numero:");
+            read(numero1);
+            
+            esPrimo = verificarPrimo(numero1);
+            if (esPrimo == 1) {
+                write("El numero es primo");
+            } else {
+                write("El numero NO es primo");
+            }
+        }
+        
+        if (opcion > 7) {
+            write("Opcion invalida");
+        }
+        
+        if (opcion != 0) {
+            write("Presione 1 para continuar o 0 para salir:");
+            read(opcion);
+        }
+    }
+    
+    write("Gracias por usar el sistema!");
+}

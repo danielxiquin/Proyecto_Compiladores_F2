@@ -69,7 +69,7 @@ IF: 'if' | 'If';
 ELSE: 'else' | 'Else';
 WHILE: 'while' | 'While';
 READ: 'read' | 'Read';
-WRITE: 'write' | 'Write';
+WRITE: 'write' | 'Write' | 'input';
 RETURN: 'return';
 STRING: '"' (~["\r\n])* '"';
 CHARACTER: '\'' (~['\r\n]) '\'';
